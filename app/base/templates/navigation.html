@@ -1,0 +1,27 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-success">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="{% url 'base:home' %}">Django Multi Factor Authentication</a>
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0"></ul>
+        <div class="d-flex">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                       data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-user-circle fa-fw"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                        {% if user.is_staff and user.is_superuser %}
+                            <li><a class="dropdown-item" href="{% url 'admin:index' %}">Admin Dashboard</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                        {% endif %}
+                        <li><a class="dropdown-item" href="{% url 'base:settings' %}">Settings</a></li>
+                        <li><a class="dropdown-item" href="{% url 'security:security' %}">Security</a></li>
+                        <li><a class="dropdown-item" href="{% url 'security:logout' %}">Logout</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>

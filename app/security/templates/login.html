@@ -1,0 +1,76 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <title>Login</title>
+        <link rel="stylesheet"
+              href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css"
+              integrity="sha512-HK5fgLBL+xu6dm/Ii3z4xhlSUyZgTT9tuc/hSrtw6uzJOvgRr2a9jyxxT1ely+B+xFAmJKVSTbpM/CuL7qxO8w=="
+              crossorigin="anonymous" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.0-beta3/css/bootstrap.min.css"
+              integrity="sha512-N415hCJJdJx+1UBfULt+i+ihvOn42V/kOjOpp1UTh4CZ70Hx5bDlKryWaqEKfY/8EYOu/C2MuyaluJryK1Lb5Q=="
+              crossorigin="anonymous" />
+        <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"
+                integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg=="
+                crossorigin="anonymous"></script>
+        <script defer src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.0-beta3/js/bootstrap.min.js"
+                integrity="sha512-mp3VeMpuFKbgxm/XMUU4QQUcJX4AZfV5esgX72JQr7H7zWusV6lLP1S78wZnX2z9dwvywil1VHkHZAqfGOW7Nw=="
+                crossorigin="anonymous"></script>
+        <script defer src="{% static 'cbor.js' %}"></script>
+        <script defer src="{% static 'utilities.js' %}"></script>
+        <script defer src="{% static 'login.js' %}"></script>
+    </head>
+    <body class="bg-dark">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-3"></div>
+                <div class="col-sm-6">
+                    <div class="card card-login mx-auto mt-5">
+                        <div class="card-header">
+                            <div class="text-center">
+                                Login
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-danger" style="display: none;" id="message"></div>
+                            <form method="POST">
+                                {% csrf_token %}
+                                <div class="form-floating mb-3">
+                                    <input type="text" name="username" id="username" placeholder="Username" class="form-control" required>
+                                    <label for="username">Username</label>
+                                </div>
+                                <div class="form-floating mb-3">
+                                    <input type="password" name="password" id="password" placeholder="Password" class="form-control" required>
+                                    <label for="password">Password</label>
+                                </div>
+                                <div class="form-floating" id="totpTokenDiv" style="display:none;">
+                                    <input type="text" name="token" id="token" placeholder="Token" class="form-control" maxlength="6">
+                                    <label for="token">TOTP Token</label>
+                                </div>
+                                <div class="my-3 d-grid gap-2 d-md-flex justify-content-md-end">
+                                    <button class="btn btn-success" id="login">Login</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="mfaSelectorModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">MFA required!</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Please choose a mfa option!
+                    </div>
+                    <div class="modal-footer" id="mfaSelectorModalFooter"></div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

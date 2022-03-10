@@ -1,0 +1,168 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <title>Django Multi Factor Authentication</title>
+        <link rel="stylesheet"
+              href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css"
+              integrity="sha512-HK5fgLBL+xu6dm/Ii3z4xhlSUyZgTT9tuc/hSrtw6uzJOvgRr2a9jyxxT1ely+B+xFAmJKVSTbpM/CuL7qxO8w=="
+              crossorigin="anonymous" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.0-beta3/css/bootstrap.min.css"
+              integrity="sha512-N415hCJJdJx+1UBfULt+i+ihvOn42V/kOjOpp1UTh4CZ70Hx5bDlKryWaqEKfY/8EYOu/C2MuyaluJryK1Lb5Q=="
+              crossorigin="anonymous" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"
+                integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg=="
+                crossorigin="anonymous"></script>
+        <script defer src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.0-beta3/js/bootstrap.min.js"
+                integrity="sha512-mp3VeMpuFKbgxm/XMUU4QQUcJX4AZfV5esgX72JQr7H7zWusV6lLP1S78wZnX2z9dwvywil1VHkHZAqfGOW7Nw=="
+                crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"
+                integrity="sha512-CNgIRecGo7nphbeZ04Sc13ka07paqdeTu0WR1IM4kNcpmBAUSHSQX0FslNhTDadL4O5SAGapGt4FodqL8My0mA=="
+                crossorigin="anonymous"
+                referrerpolicy="no-referrer"></script>
+        <script defer src="{% static 'security.js' %}"></script>
+        <script defer src="{% static 'cbor.js' %}"></script>
+        <script defer src="{% static 'utilities.js' %}"></script>
+    </head>
+    <body>
+        {% include 'navigation.html' %}
+        <div class="container">
+            <div class="card my-5">
+                <div class="card-header" style="text-align: center;">
+                    <h5 style="margin-bottom: 0;">Security</h5>
+                </div>
+                <div class="card-body">
+                    {% csrf_token %}
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th scope="col"></th>
+                            <th scope="col">Type</th>
+                            <th scope="col">Description</th>
+                            <th scope="col">Date Added</th>
+                            <th scope="col">Last Used</th>
+                            <th scope="col">
+                                <a href="javascript:void(0)" onclick="openCreateModal()">
+                                    <i class="fas fa-plus"></i>
+                                </a>
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Add MFA Key</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="createModalUuid">
+                        <div class="alert alert-danger" style="display: none;" id="createModalMessageField"></div>
+                        <ul class="nav nav-tabs" id="mfaOptions" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="toggle-overview-tab" data-bs-toggle="tab"
+                                        data-bs-target="#mfaOverview" type="button" role="tab"
+                                        aria-selected="true">Overview
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="toggle-totp-tab" data-bs-toggle="tab"
+                                        data-bs-target="#mfaTotp" type="button" role="tab"
+                                        aria-selected="true">TOTP
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="toggle-fido2-tab" data-bs-toggle="tab" data-bs-target="#mfaFido2"
+                                        type="button" role="tab" aria-selected="false">FIDO2 (YubiKey)
+                                </button>
+                            </li>
+                        </ul>
+                        <div class="tab-content" id="myTabContent">
+                            <div class="tab-pane fade show active" id="mfaOverview" role="tabpanel">
+                                <br>
+                                <p>
+                                    Multi-factor authentication (MFA) is an extra layer of security used when logging
+                                    into websites or apps. With MFA, you have to log in with your username and password
+                                    and provide another form of authentication that only you know or have access to.
+                                    In this application, you can choose between time-based one-time password (TOTP) and
+                                    FIDO2, which requires a security key (e.g. a <a href="https://www.yubico.com/">
+                                    YubiKey from Yubico</a>).
+                                </p>
+                            </div>
+                            <div class="tab-pane fade" id="mfaTotp" role="tabpanel">
+                                <div style="text-align: center;">
+                                    <br>
+                                    <span id="totpQr"></span>
+                                    <code id="totpSecret"></code>
+                                    <br>
+                                    <br>
+                                    <div class="form-group row">
+                                        <div class="col-sm-6">
+                                            <div class="form-floating mb-3">
+                                                <input type="text" id="createModalTotpDescription" placeholder="Description"
+                                                       class="form-control">
+                                                <label for="createModalTotpDescription">Description</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="form-floating mb-3">
+                                                <input type="text" id="createModalTotpToken" placeholder="TOTP Token"
+                                                       class="form-control" maxlength="6">
+                                                <label for="createModalTotpToken">TOTP Token</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="mfaFido2" role="tabpanel"></div>
+                        </div>
+                    </div>
+                    <div class="modal-footer" id="createModalFooter" style="display:none;">
+                        <button type="button" class="btn btn-primary" id="createModalConfirm">Add MFA Key</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Update MFA Key</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-danger" style="display: none;" id="updateModalMessageField"></div>
+                        <input type="hidden" id="updateModalUuid">
+                        <div class="form-group row">
+                            <div class="col-sm-12">
+                                <div class="form-floating mb-3">
+                                    <input type="text" id="updateModalDescription" placeholder="Description"
+                                           class="form-control">
+                                    <label for="updateModalDescription">Description</label>
+                                </div>
+                            </div>
+                            <div class="col-sm-12">
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" id="updateModalEnabled">
+                                    <label class="form-check-label" for="updateModalEnabled">Enabled</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" id="updateModalDelete">Delete Key</button>
+                        <button type="button" class="btn btn-primary" id="updateModalSave">Update Key</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
